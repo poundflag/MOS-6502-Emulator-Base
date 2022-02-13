@@ -1,0 +1,3 @@
+add_library(buscontroller buscontroller.cpp)
+
+target_link_libraries(buscontroller)

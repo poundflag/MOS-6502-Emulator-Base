@@ -34,3 +34,5 @@
 # Directories
 build/
 test/googletest/
+doc/.DS_Store
+.DS_Store
