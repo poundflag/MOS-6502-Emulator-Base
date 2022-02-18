@@ -4,4 +4,7 @@ include_directories(googletest/include) # this is so we can #include <gtest/gtes
 
 add_executable(test test.cpp)
 
-target_link_libraries(test PRIVATE gtest) # link google test to this executable
+target_link_libraries(test 
+    PRIVATE gtest # link google test to this executable
+    PRIVATE buscontroller
+)

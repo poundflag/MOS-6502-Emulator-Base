@@ -4,13 +4,13 @@
 #define __REGISTER_H__
 
 class Register {
-private:
+protected:
   uint8_t value;
 
 public:
   Register();
-  void setValue(uint8_t value);
-  uint8_t getValue();
+  virtual void setValue(uint8_t value);
+  virtual uint8_t getValue();
 };
 
 #endif // __REGISTER_H__

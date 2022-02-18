@@ -1,10 +1,11 @@
 #include <gtest/gtest.h>
-
+#include "bus/buscontroller.cpp"
+/*
 TEST(myfunctions, add)
 {
     GTEST_ASSERT_EQ(1, 1);
 }
-
+*/
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

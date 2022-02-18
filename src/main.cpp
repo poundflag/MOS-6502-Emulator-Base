@@ -5,5 +5,5 @@ int main() {
     std::cout << "Hello";
     RegisterController l;
     l.setRegisterValue(A, 'X');
-    std::cout << l.getRegisterValue(A);
+    std::cout << l.getRegisterValue(A) << std::endl;
 }
