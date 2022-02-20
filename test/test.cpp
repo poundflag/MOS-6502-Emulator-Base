@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "bus/buscontroller.cpp"
+#include "register/model/statusregister.cpp"
+#include "register/registercontroller.cpp"
 /*
 TEST(myfunctions, add)
 {

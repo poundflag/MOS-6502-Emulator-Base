@@ -1,6 +1,6 @@
+#include <iostream>
 #include <stdint.h>
 #include <stdio.h>
-#include <iostream>
 
 #ifndef __BUSDEVICE_H__
 #define __BUSDEVICE_H__
@@ -8,12 +8,15 @@
 struct AddressRange {
   uint16_t addressStart;
   uint16_t addressEnd;
+  bool isAddressEmpty() { return (addressStart & addressEnd) == 0; }
 };
+
+static const int ADDRESS_ARRAY_SIZE = 5;
 
 // Abstract class for the implementation of a bus device
 class BusDevice {
 private:
-  AddressRange addresses[5];
+  AddressRange addresses[ADDRESS_ARRAY_SIZE];
   int index;
 
 public:

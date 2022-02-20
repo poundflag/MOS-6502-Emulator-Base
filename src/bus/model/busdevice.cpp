@@ -3,8 +3,10 @@
 BusDevice::BusDevice() { index = 0; }
 
 void BusDevice::addAddress(AddressRange address) {
-  addresses[index] = address;
-  index++;
+  if (index < ADDRESS_ARRAY_SIZE) {
+    addresses[index] = address;
+    index++;
+  }
 }
 
 AddressRange *BusDevice::getAddresses() {

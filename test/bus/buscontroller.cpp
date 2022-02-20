@@ -30,3 +30,14 @@ TEST_F(BusControllerTest, readFromLastPopulatedPage) {
 TEST_F(BusControllerTest, readFromLastUnpopulatedPage) {
   GTEST_ASSERT_EQ(busController.read(0xFFFF), 0x0);
 }
+
+TEST_F(BusControllerTest, writeToAPopulatedPage) {
+  busController.write(0xF5, 0x87);
+  GTEST_ASSERT_EQ(busController.read(0xF5), 0x87);
+
+}
+
+TEST_F(BusControllerTest, writeToAnEmptyPage) {
+  busController.write(0x22, 0x23);
+  GTEST_ASSERT_EQ(busController.read(0x22), 0x0);
+}

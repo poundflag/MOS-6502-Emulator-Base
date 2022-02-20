@@ -1,6 +1,7 @@
 #include "register.h"
+#include <iostream>
 
-enum Status {
+enum Flag {
   Carry = 0,
   Zero,
   Interrupt,
@@ -8,7 +9,7 @@ enum Status {
   BreakSignal,
   Bit5,
   Overflow,
-  Sign
+  Negative
 };
 
 #ifndef __STATUSREGISTER_H__
@@ -18,8 +19,14 @@ class StatusRegister : public Register {
 private:
 public:
   StatusRegister();
-  void processStatus(uint8_t value);
-  bool getStatus(Status status);
+  void setValue(uint8_t value1, uint8_t value2);
+  void overrideValue(uint8_t value);
+  void setCarry(uint16_t value);
+  void setZero(uint8_t value);
+  void setOverflow(uint8_t value1, uint8_t value2);
+  void setNegative(uint8_t value);
+  void setStatus(Flag flag, bool state);
+  bool getStatus(Flag flag);
 };
 
 #endif // __STATUSREGISTER_H__

@@ -12,7 +12,8 @@ private:
 
 public:
   Instruction(RegisterController &registerController, BusController &busController);
-  void LDA_Absolute(uint8_t address);
+  uint8_t absoluteToImmediate(uint16_t address);
+  void LDA(uint8_t value);
   void STA_Absolute(uint8_t address);
 };
 

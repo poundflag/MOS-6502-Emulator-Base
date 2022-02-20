@@ -7,19 +7,13 @@ BusController::BusController() {
 }
 
 BusDevice *BusController::getDevice(uint16_t address) {
+  // Loop through all available devices
   for (int i = 0; i < arrayIndex; i++) {
     BusDevice *currentDevice = busDeviceArray[i];
-    // Refactor  TODO
-    if (currentDevice->getAddresses() != NULL) {
-      for (int j = 0; j < 5; j++) {
-        AddressRange currentAddress = currentDevice->getAddresses()[j];
-        if ((currentAddress.addressStart & currentAddress.addressEnd) != 0) {
-          if (address >= currentAddress.addressStart &&
-              address <= currentAddress.addressEnd) {
-            return currentDevice;
-          }
-        }
-      }
+    AddressRange addressRange = getAddressRange(address, currentDevice);
+    // If an address has been found return the current device
+    if (!addressRange.isAddressEmpty()) {
+      return currentDevice;
     }
   }
   return NULL;
@@ -30,15 +24,17 @@ void BusController::addDevice(BusDevice *busDevice) {
   arrayIndex++;
 }
 
-// TODO Change name
-AddressRange BusController::getAddressRange(uint16_t address) {
-  AddressRange *addressRange = getDevice(address)->getAddresses();
-  // TODO Add const for the 5 PLEASE!
-  if (addressRange != NULL) {
-    for (int j = 0; j < 5; j++) {
-      AddressRange currentAddress = addressRange[j];
-      if ((currentAddress.addressStart & currentAddress.addressEnd) != 0) {
-        if (address >= currentAddress.addressStart &&
+AddressRange BusController::getAddressRange(uint16_t address,
+                                            BusDevice *currentDevice) {
+  if (currentDevice != NULL) {
+    AddressRange *addressRange = currentDevice->getAddresses();
+    if (addressRange != NULL) {
+
+      for (int j = 0; j < ADDRESS_ARRAY_SIZE; j++) {
+        AddressRange currentAddress = addressRange[j];
+
+        if (!currentAddress.isAddressEmpty() &&
+            address >= currentAddress.addressStart &&
             address <= currentAddress.addressEnd) {
           return currentAddress;
         }
@@ -51,16 +47,18 @@ AddressRange BusController::getAddressRange(uint16_t address) {
 
 uint8_t BusController::read(uint16_t address) {
   BusDevice *currentDevice = getDevice(address);
-  if (currentDevice != NULL) {
-    return currentDevice->read(address - getAddressRange(address).addressStart);
+  AddressRange addressRange = getAddressRange(address, currentDevice);
+  if (currentDevice != NULL && !addressRange.isAddressEmpty()) {
+    return currentDevice->read(address - addressRange.addressStart);
   }
   return 0;
 }
 
 void BusController::write(uint16_t address, uint8_t value) {
   BusDevice *currentDevice = getDevice(address);
-  if (currentDevice != NULL) {
-    currentDevice->write(address, value);
+  AddressRange addressRange = getAddressRange(address, currentDevice);
+  if (currentDevice != NULL && !addressRange.isAddressEmpty()) {
+    currentDevice->write(address - addressRange.addressStart, value);
   }
 }
 

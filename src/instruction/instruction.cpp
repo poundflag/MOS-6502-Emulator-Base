@@ -4,16 +4,21 @@ Instruction::Instruction(RegisterController &registerController,
                          BusController &busController)
     : registerController{registerController}, busController{busController} {}
 
+uint8_t Instruction::absoluteToImmediate(uint16_t address) {
+  return busController.read(address);
+}
+
 /*
-LDA - Load Accumulator from Memory
-M -> A (Group One)
-Data from memory is transferred to the accumulator
-Affects the accumulator, zero flag and negative flag
+LDA - LDA Load accumulator with memory
+
+Operation:  M -> A   N Z C I D V
+                     / / _ _ _ _
+Addressing Mode: Group One
 */
-void Instruction::LDA_Absolute(uint8_t address) {
-  uint8_t memoryValue = busController.read(address);
-  // TODO Set the status flag
-  registerController.setRegisterValue(A, memoryValue);
+void Instruction::LDA(uint8_t value) {
+  registerController.setRegisterValue(A, value);
+  registerController.getStatusRegister()->setZero(value);
+  registerController.getStatusRegister()->setNegative(value);
 }
 
 /*

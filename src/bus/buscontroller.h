@@ -14,14 +14,13 @@ private:
   int arrayIndex;
 
   BusDevice *getDevice(uint16_t address);
+  AddressRange getAddressRange(uint16_t address, BusDevice *currentDevice);
 
 public:
   BusController();
 
   // Add a BusDevice to be interfaced with
   void addDevice(BusDevice *busDevice);
-
-  AddressRange getAddressRange(uint16_t address);
 
   // Read a value from the bus
   uint8_t read(uint16_t address);

@@ -7,4 +7,5 @@ add_executable(test test.cpp)
 target_link_libraries(test 
     PRIVATE gtest # link google test to this executable
     PRIVATE buscontroller
+    PRIVATE registercontroller
 )
