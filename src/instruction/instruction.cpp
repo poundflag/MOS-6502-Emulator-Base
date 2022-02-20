@@ -4,7 +4,7 @@ Instruction::Instruction(RegisterController &registerController,
                          BusController &busController)
     : registerController{registerController}, busController{busController} {}
 
-uint8_t Instruction::absoluteToImmediate(uint16_t address) {
+uint8_t Instruction::absolute(uint16_t address) {
   return busController.read(address);
 }
 
@@ -22,12 +22,13 @@ void Instruction::LDA(uint8_t value) {
 }
 
 /*
-STA - Store Accumulator in Memory
-(A -> M) (Group One)
-Stores data from the accumulator to memory
-Doesn’t affect anything
+STA - STA Store accumulator in memory
+
+Operation:  A -> M   N Z C I D V
+                     _ _ _ _ _ _
+Addressing Mode: Group One
 */
-void Instruction::STA_Absolute(uint8_t address) {
+void Instruction::STA(uint16_t address) {
   uint8_t aValue = registerController.getRegisterValue(A);
   busController.write(address, aValue);
 }

@@ -2,6 +2,7 @@
 #include "bus/buscontroller.cpp"
 #include "register/model/statusregister.cpp"
 #include "register/registercontroller.cpp"
+#include "instruction/instruction.cpp"
 /*
 TEST(myfunctions, add)
 {
