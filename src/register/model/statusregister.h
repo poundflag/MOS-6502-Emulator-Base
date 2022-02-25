@@ -1,6 +1,9 @@
 #include "register.h"
 #include <iostream>
 
+#ifndef __STATUSREGISTER_H__
+#define __STATUSREGISTER_H__
+
 enum Flag {
   Carry = 0,
   Zero,
@@ -11,9 +14,6 @@ enum Flag {
   Overflow,
   Negative
 };
-
-#ifndef __STATUSREGISTER_H__
-#define __STATUSREGISTER_H__
 
 class StatusRegister : public Register {
 private:

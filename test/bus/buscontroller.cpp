@@ -11,6 +11,7 @@ protected:
     ram->addAddress({0xEF, 0xFF});
     ram->write(0x10, 0x12);
     ram->write(0x4, 0x88);
+    ram->write(0x0, 0xA8);
     busController.addDevice(ram);
   }
 };
@@ -21,6 +22,10 @@ TEST_F(BusControllerTest, readFromFirstPage) {
 
 TEST_F(BusControllerTest, readFromPopulatedPage) {
   GTEST_ASSERT_EQ(busController.read(0xF3), 0x88);
+}
+
+TEST_F(BusControllerTest, readFromFirstInitializedAddress) {
+  GTEST_ASSERT_EQ(busController.read(0xEF), 0xA8);
 }
 
 TEST_F(BusControllerTest, readFromLastPopulatedPage) {

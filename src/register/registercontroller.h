@@ -2,20 +2,21 @@
 #include "model/statusregister.h"
 #include <stdint.h>
 
+#ifndef __REGISTERCONTROLLER_H__
+#define __REGISTERCONTROLLER_H__
+
 enum Registers {
   A = 0,
-  STATUS,
+  X,
+  Y,
   // Current size of the enum
   STATE_COUNT
 };
 
-#ifndef __REGISTERCONTROLLER_H__
-#define __REGISTERCONTROLLER_H__
-
 class RegisterController {
 private:
-StatusRegister *statusRegister;
-  Register **registerArray;
+  StatusRegister *statusRegister;
+  Register *registerArray;
 
 public:
   RegisterController();

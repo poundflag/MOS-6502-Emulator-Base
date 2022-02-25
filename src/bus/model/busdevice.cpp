@@ -16,4 +16,6 @@ AddressRange *BusDevice::getAddresses() {
   return NULL;
 }
 
-BusDevice::~BusDevice() {}
+BusDevice::~BusDevice() {
+  delete[] addresses;
+}

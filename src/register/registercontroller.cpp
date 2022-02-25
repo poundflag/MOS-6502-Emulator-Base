@@ -1,22 +1,25 @@
 #include "registercontroller.h"
 
 RegisterController::RegisterController() {
-  registerArray = new Register *[STATE_COUNT];
-  registerArray[STATUS] = statusRegister;
+  statusRegister = new StatusRegister();
+  // TODO Change size
+  registerArray = new Register[STATE_COUNT];
 }
 
 uint8_t RegisterController::getRegisterValue(Registers registerIndex) {
-  return 0;
+  return registerArray[registerIndex].getValue();
 }
 
-StatusRegister *RegisterController::getStatusRegister() { return statusRegister; }
+StatusRegister *RegisterController::getStatusRegister() {
+  return statusRegister;
+}
 
 void RegisterController::setRegisterValue(Registers registerIndex,
                                           uint8_t value) {
-  // registerArray[registerIndex].setValue(value);
+  registerArray[registerIndex].setValue(value);
 }
 
 RegisterController::~RegisterController() {
-  delete[] registerArray;
   delete statusRegister;
+  delete[] registerArray;
 }

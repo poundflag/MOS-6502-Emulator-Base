@@ -8,7 +8,7 @@
 struct AddressRange {
   uint16_t addressStart;
   uint16_t addressEnd;
-  bool isAddressEmpty() { return (addressStart & addressEnd) == 0; }
+  bool isAddressEmpty() { return addressStart == 0 && addressEnd == 0; }
 };
 
 static const int ADDRESS_ARRAY_SIZE = 5;
@@ -16,7 +16,7 @@ static const int ADDRESS_ARRAY_SIZE = 5;
 // Abstract class for the implementation of a bus device
 class BusDevice {
 private:
-  AddressRange addresses[ADDRESS_ARRAY_SIZE];
+  AddressRange *addresses = new AddressRange[ADDRESS_ARRAY_SIZE] {0};
   int index;
 
 public:
