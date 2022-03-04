@@ -1,7 +1,8 @@
 #include "registercontroller.h"
 
-RegisterController::RegisterController() {
+RegisterController::RegisterController(BusController &busController) {
   statusRegister = new StatusRegister();
+  stackRegister = new Stack(busController);
   // TODO Change size
   registerArray = new Register[STATE_COUNT];
 }
@@ -14,6 +15,8 @@ StatusRegister *RegisterController::getStatusRegister() {
   return statusRegister;
 }
 
+Stack *RegisterController::getStack() { return stackRegister; }
+
 void RegisterController::setRegisterValue(Registers registerIndex,
                                           uint8_t value) {
   registerArray[registerIndex].setValue(value);
@@ -21,5 +24,6 @@ void RegisterController::setRegisterValue(Registers registerIndex,
 
 RegisterController::~RegisterController() {
   delete statusRegister;
+  delete stackRegister;
   delete[] registerArray;
 }

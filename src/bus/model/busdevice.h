@@ -16,7 +16,7 @@ static const int ADDRESS_ARRAY_SIZE = 5;
 // Abstract class for the implementation of a bus device
 class BusDevice {
 private:
-  AddressRange *addresses = new AddressRange[ADDRESS_ARRAY_SIZE] {0};
+  AddressRange *addresses = new AddressRange[ADDRESS_ARRAY_SIZE]{0};
   int index;
 
 public:

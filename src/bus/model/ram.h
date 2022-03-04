@@ -6,8 +6,9 @@
 
 class Ram : public BusDevice {
 private:
-uint8_t *ramArray;
-uint16_t ramSize;
+  uint8_t *ramArray;
+  uint16_t ramSize;
+
 public:
   Ram(uint16_t ramSize);
   uint8_t read(uint16_t address);

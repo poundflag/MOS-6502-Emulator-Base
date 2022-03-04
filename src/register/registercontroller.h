@@ -1,5 +1,7 @@
 #include "model/register.h"
+#include "model/stack.h"
 #include "model/statusregister.h"
+#include "../bus/buscontroller.h"
 #include <stdint.h>
 
 #ifndef __REGISTERCONTROLLER_H__
@@ -16,12 +18,14 @@ enum Registers {
 class RegisterController {
 private:
   StatusRegister *statusRegister;
+  Stack *stackRegister;
   Register *registerArray;
 
 public:
-  RegisterController();
+  RegisterController(BusController &busController);
   uint8_t getRegisterValue(Registers registerIndex);
   StatusRegister *getStatusRegister();
+  Stack *getStack();
   void setRegisterValue(Registers registerIndex, uint8_t value);
   ~RegisterController();
 };

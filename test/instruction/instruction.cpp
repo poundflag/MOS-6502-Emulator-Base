@@ -2,6 +2,7 @@
 #include "../../src/bus/buscontroller.h"
 #include "../../src/bus/model/busdevice.h"
 #include "../../src/bus/model/ram.h"
+#include "../../src/register/model/stack.h"
 #include "../../src/register/registercontroller.h"
 #include <gtest/gtest.h>
 
@@ -9,11 +10,14 @@ class InstructionTest : public ::testing::Test {
 protected:
   BusController busController = BusController();
   Ram *ram = new Ram(0x10);
-  RegisterController registerController = RegisterController();
+  Ram *stackRam = new Ram(0x100);
+  RegisterController registerController = RegisterController(busController);
   Instruction instr = Instruction(registerController, busController);
   void SetUp() {
     ram->addAddress({0x0, 0x10});
     busController.addDevice(ram);
+    stackRam->addAddress({0x0100, 0x01FF});
+    busController.addDevice(stackRam);
   }
 };
 
@@ -339,4 +343,270 @@ TEST_F(InstructionTest, EORNegativeFlagAffected) {
   GTEST_ASSERT_EQ(0xF0, registerController.getRegisterValue(A));
   GTEST_ASSERT_EQ(true,
                   registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, ORAWithNotFlagChanged) {
+  registerController.setRegisterValue(A, 0x3);
+  busController.write(1, 0x5);
+  instr.ORA(1);
+  GTEST_ASSERT_EQ(0x7, registerController.getRegisterValue(A));
+}
+
+TEST_F(InstructionTest, ORAZeroFlagAffected) {
+  registerController.setRegisterValue(A, 0x0);
+  busController.write(1, 0x0);
+  instr.ORA(1);
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, ORANegativeFlagAffected) {
+  registerController.setRegisterValue(A, 0xF2);
+  busController.write(1, 0x2);
+  instr.ORA(1);
+  GTEST_ASSERT_EQ(0xF2, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TAXWithNotFlagChanged) {
+  registerController.setRegisterValue(A, 0x3);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TAX();
+  GTEST_ASSERT_EQ(0x3, registerController.getRegisterValue(X));
+}
+
+TEST_F(InstructionTest, TAXZeroFlagAffected) {
+  registerController.setRegisterValue(A, 0x0);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TAX();
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(X));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TAXNegativeFlagAffected) {
+  registerController.setRegisterValue(A, 0xF3);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TAX();
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(X));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TAYWithNotFlagChanged) {
+  registerController.setRegisterValue(A, 0x3);
+  registerController.setRegisterValue(Y, 0x5);
+  instr.TAY();
+  GTEST_ASSERT_EQ(0x3, registerController.getRegisterValue(Y));
+}
+
+TEST_F(InstructionTest, TAYZeroFlagAffected) {
+  registerController.setRegisterValue(A, 0x0);
+  registerController.setRegisterValue(Y, 0x5);
+  instr.TAY();
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(Y));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TAYNegativeFlagAffected) {
+  registerController.setRegisterValue(A, 0xF3);
+  registerController.setRegisterValue(Y, 0x5);
+  instr.TAY();
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(Y));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TXAWithNotFlagChanged) {
+  registerController.setRegisterValue(X, 0x3);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TXA();
+  GTEST_ASSERT_EQ(0x3, registerController.getRegisterValue(A));
+}
+
+TEST_F(InstructionTest, TXAZeroFlagAffected) {
+  registerController.setRegisterValue(X, 0x0);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TXA();
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TXANegativeFlagAffected) {
+  registerController.setRegisterValue(X, 0xF3);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TXA();
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TYAWithNotFlagChanged) {
+  registerController.setRegisterValue(Y, 0x3);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TYA();
+  GTEST_ASSERT_EQ(0x3, registerController.getRegisterValue(A));
+}
+
+TEST_F(InstructionTest, TYAZeroFlagAffected) {
+  registerController.setRegisterValue(Y, 0x0);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TYA();
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TYANegativeFlagAffected) {
+  registerController.setRegisterValue(Y, 0xF3);
+  registerController.setRegisterValue(A, 0x5);
+  instr.TYA();
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TSXWithNotFlagChanged) {
+  registerController.getStack()->push(0x10);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TSX();
+  GTEST_ASSERT_EQ(0x10, registerController.getRegisterValue(X));
+}
+
+TEST_F(InstructionTest, TSXZeroFlagAffected) {
+  registerController.getStack()->push(0x0);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TSX();
+  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(X));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TSXNegativeFlagAffected) {
+  registerController.getStack()->push(0xF3);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TSX();
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(X));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, TXSWithNotFlagChanged) {
+  registerController.getStack()->push(0x10);
+  registerController.setRegisterValue(X, 0x5);
+  instr.TXS();
+  GTEST_ASSERT_EQ(0x5, registerController.getStack()->pull());
+}
+
+TEST_F(InstructionTest, TXSZeroFlagAffected) {
+  registerController.getStack()->push(0x5);
+  registerController.setRegisterValue(X, 0x0);
+  instr.TXS();
+  GTEST_ASSERT_EQ(0x0, registerController.getStack()->pull());
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, TXSNegativeFlagAffected) {
+  registerController.getStack()->push(0x5);
+  registerController.setRegisterValue(X, 0xF3);
+  instr.TXS();
+  GTEST_ASSERT_EQ(0xF3, registerController.getStack()->pull());
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, PHA) {
+  registerController.setRegisterValue(A, 0x44);
+  instr.PHA();
+  GTEST_ASSERT_EQ(0x44, registerController.getStack()->pull());
+}
+
+TEST_F(InstructionTest, PHP) {
+  registerController.getStatusRegister()->Register::setValue(0x20);
+  instr.PHP();
+  GTEST_ASSERT_EQ(0x20, registerController.getStack()->pull());
+}
+
+TEST_F(InstructionTest, PLA) {
+  registerController.getStack()->push(0x34);
+  instr.PLA();
+  GTEST_ASSERT_EQ(0x34, registerController.getRegisterValue(A));
+}
+
+TEST_F(InstructionTest, PLP) {
+  registerController.getStack()->push(0x34);
+  instr.PLP();
+  GTEST_ASSERT_EQ(0x34, registerController.getStatusRegister()->getValue());
+}
+
+TEST_F(InstructionTest, ADCWithSimpleNumbers) {
+  registerController.setRegisterValue(A, 0x3);
+  instr.ADC(0x3);
+  GTEST_ASSERT_EQ(0x6, registerController.getRegisterValue(A));
+}
+
+TEST_F(InstructionTest, ADCWithSimpleCarryFlagAndOverflow) {
+  registerController.setRegisterValue(A, 0xFF);
+  instr.ADC(0xFF);
+  GTEST_ASSERT_EQ(0xFE, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ADCWithSimpleCarryFlagAndOverflow2) {
+  registerController.setRegisterValue(A, 0xFA);
+  instr.ADC(0x0A);
+  GTEST_ASSERT_EQ(0x04, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ADCWithCarryFlagTrue) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0x2);
+  instr.ADC(0x02);
+  GTEST_ASSERT_EQ(0x05, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ADCWithCarryFlagTrueAndOverflow) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0xFE);
+  instr.ADC(0x0FE);
+  GTEST_ASSERT_EQ(0xFD, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ADCWithCarryFlagTrueAndOverflow2) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0xFF);
+  instr.ADC(0x0FF);
+  GTEST_ASSERT_EQ(0xFF, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingZeroAndNothingElseSet) {
+  busController.write(0x2, 2);
+  instr.ASL_Memory(0x2);
+  GTEST_ASSERT_EQ(0x4, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingSetAndNothingElse) {
+  busController.write(0x2, 80);
+  instr.ASL_Memory(0x2);
+  GTEST_ASSERT_EQ(0x00, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
 }

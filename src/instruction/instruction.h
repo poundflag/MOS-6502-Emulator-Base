@@ -35,6 +35,19 @@ public:
   void INY();
   void AND(uint16_t address);
   void EOR(uint16_t address);
+  void ORA(uint16_t address);
+  void TAX();
+  void TAY();
+  void TSX();
+  void TXA();
+  void TXS();
+  void TYA();
+  void PHA();
+  void PHP();
+  void PLA();
+  void PLP();
+  void ADC(uint8_t value);
+  void ASL_Memory(uint16_t memoryAddress);
 };
 
 #endif // __INSTRUCTION_H__

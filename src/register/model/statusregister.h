@@ -16,7 +16,6 @@ enum Flag {
 };
 
 class StatusRegister : public Register {
-private:
 public:
   StatusRegister();
   void setValue(uint8_t value1, uint8_t value2);

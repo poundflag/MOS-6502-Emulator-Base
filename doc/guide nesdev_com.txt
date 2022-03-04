@@ -254,8 +254,8 @@ the 6510 (the C64 processor).
   |
   +------------------------------------------------------------------------
   |
-  |     ADC   Add Memory to Accumulator with Carry
-  |     AND   "AND" Memory with Accumulator
+  |     ADC   Add Memory to Accumulator with Carry imp
+  |     AND   "AND" Memory with Accumulator imp
   |     ASL   Shift Left One Bit (Memory or Accumulator)
   |
   |     BCC   Branch on Carry Clear
@@ -269,23 +269,23 @@ the 6510 (the C64 processor).
   |     BVC   Branch on Overflow Clear
   |     BVS   Branch on Overflow Set
   |
-  |     CLC   Clear Carry Flag
-  |     CLD   Clear Decimal Mode
-  |     CLI   Clear interrupt Disable Bit
-  |     CLV   Clear Overflow Flag
+  |     CLC   Clear Carry Flag imp
+  |     CLD   Clear Decimal Mode imp
+  |     CLI   Clear interrupt Disable Bit imp
+  |     CLV   Clear Overflow Flag imp
   |     CMP   Compare Memory and Accumulator
   |     CPX   Compare Memory and Index X
   |     CPY   Compare Memory and Index Y
   |
-  |     DEC   Decrement Memory by One
-  |     DEX   Decrement Index X by One
-  |     DEY   Decrement Index Y by One
+  |     DEC   Decrement Memory by One imp
+  |     DEX   Decrement Index X by One imp
+  |     DEY   Decrement Index Y by One imp
   |
-  |     EOR   "Exclusive-Or" Memory with Accumulator
+  |     EOR   "Exclusive-Or" Memory with Accumulator imp
   |
-  |     INC   Increment Memory by One
-  |     INX   Increment Index X by One
-  |     INY   Increment Index Y by One
+  |     INC   Increment Memory by One imp
+  |     INX   Increment Index X by One imp
+  |     INY   Increment Index Y by One imp
   |
   |     JMP   Jump to New Location
   |
@@ -300,19 +300,19 @@ the 6510 (the C64 processor).
                                                                           |
         JSR   Jump to New Location Saving Return Address                  |
                                                                           |
-        LDA   Load Accumulator with Memory                                |
-        LDX   Load Index X with Memory                                    |
-        LDY   Load Index Y with Memory                                    |
+        LDA   Load Accumulator with Memory imp                            |
+        LDX   Load Index X with Memory imp                                |
+        LDY   Load Index Y with Memory imp                                |
         LSR   Shift Right One Bit (Memory or Accumulator)                 |
                                                                           |
         NOP   No Operation                                                |
                                                                           |
-        ORA   "OR" Memory with Accumulator                                |
+        ORA   "OR" Memory with Accumulator imp                            |
                                                                           |
-        PHA   Push Accumulator on Stack                                   |
-        PHP   Push Processor Status on Stack                              |
-        PLA   Pull Accumulator from Stack                                 |
-        PLP   Pull Processor Status from Stack                            |
+        PHA   Push Accumulator on Stack imp                               |
+        PHP   Push Processor Status on Stack imp                          |
+        PLA   Pull Accumulator from Stack imp                             |
+        PLP   Pull Processor Status from Stack imp                        |
                                                                           |
         ROL   Rotate One Bit Left (Memory or Accumulator)                 |
         ROR   Rotate One Bit Right (Memory or Accumulator)                |
@@ -320,19 +320,19 @@ the 6510 (the C64 processor).
         RTS   Return from Subroutine                                      |
                                                                           |
         SBC   Subtract Memory from Accumulator with Borrow                |
-        SEC   Set Carry Flag                                              |
-        SED   Set Decimal Mode                                            |
-        SEI   Set Interrupt Disable Status                                |
-        STA   Store Accumulator in Memory                                 |
-        STX   Store Index X in Memory                                     |
-        STY   Store Index Y in Memory                                     |
+        SEC   Set Carry Flag imp                                          |
+        SED   Set Decimal Mode imp                                        |
+        SEI   Set Interrupt Disable Status imp                            |
+        STA   Store Accumulator in Memory imp                             |
+        STX   Store Index X in Memory imp                                 |
+        STY   Store Index Y in Memory imp                                 |
                                                                           |
-        TAX   Transfer Accumulator to Index X                             |
-        TAY   Transfer Accumulator to Index Y                             |
-        TSX   Transfer Stack Pointer to Index X                           |
-        TXA   Transfer Index X to Accumulator                             |
-        TXS   Transfer Index X to Stack Pointer                           |
-        TYA   Transfer Index Y to Accumulator                             |
+        TAX   Transfer Accumulator to Index X imp                         |
+        TAY   Transfer Accumulator to Index Y imp                         |
+        TSX   Transfer Stack Pointer to Index X imp                       |
+        TXA   Transfer Index X to Accumulator imp                         |
+        TXS   Transfer Index X to Stack Pointer imp                       |
+        TYA   Transfer Index Y to Accumulator imp                         |
   ------------------------------------------------------------------------+
 
 
