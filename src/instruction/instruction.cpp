@@ -1,8 +1,9 @@
 #include "instruction.h"
 
 Instruction::Instruction(RegisterController &registerController,
-                         BusController &busController)
-    : registerController{registerController}, busController{busController} {}
+                         BusController &busController, ALU &alu)
+    : registerController{registerController},
+      busController{busController}, alu{alu} {}
 
 uint8_t Instruction::absolute(uint16_t address) {
   return busController.read(address);
@@ -243,10 +244,8 @@ Operation:  A /\ M -> A   N Z C I D V
 void Instruction::AND(uint16_t address) {
   uint8_t aValue = registerController.getRegisterValue(A);
   uint8_t memoryValue = busController.read(address);
-  uint8_t result = aValue & memoryValue;
+  uint8_t result = alu.andOperation(aValue, memoryValue);
   registerController.setRegisterValue(A, result);
-  registerController.getStatusRegister()->setNegative(result);
-  registerController.getStatusRegister()->setZero(result);
 }
 
 /*
@@ -407,25 +406,284 @@ Operation:  A + M + C -> A, C   N Z C I D V
                                 / / / _ _ /
 */
 void Instruction::ADC(uint8_t value) {
-  bool carry = registerController.getStatusRegister()->getStatus(Carry);
   uint8_t aValue = registerController.getRegisterValue(A);
-  registerController.getStatusRegister()->setValue(aValue, value);
-  registerController.setRegisterValue(A, aValue + value + carry);
+  uint8_t result = alu.addOperation(aValue, value);
+  registerController.setRegisterValue(A, result);
 }
 
 /*
 ASL - Shift Left One Bit (Memory or Accumulator)
 
-                   +-+-+-+-+-+-+-+-+
-  Operation:  C <- |7|6|5|4|3|2|1|0| <- 0
-                   +-+-+-+-+-+-+-+-+      N Z C I D V
-                                          / / / _ _ _
+                 +-+-+-+-+-+-+-+-+
+Operation:  C <- |7|6|5|4|3|2|1|0| <- 0
+                 +-+-+-+-+-+-+-+-+    N Z C I D V
+                                      / / / _ _ _
 */
 void Instruction::ASL_Memory(uint16_t memoryAddress) {
-  // TODO Add later accumulator call
-  // TODO Add ALU later
   uint8_t memoryValue = busController.read(memoryAddress);
-  registerController.getStatusRegister()->setCarry((memoryValue & 0x80) == 0x80);
-  memoryValue <<= 1;
-  busController.write(memoryAddress, memoryValue);
+  busController.write(memoryAddress, alu.shiftLeftOperation(memoryValue));
+}
+
+/*
+LSR - Shift right one bit (memory or accumulator)
+
+                 +-+-+-+-+-+-+-+-+
+Operation:  0 -> |7|6|5|4|3|2|1|0| -> C
+                 +-+-+-+-+-+-+-+-+    N Z C I D V
+                                      0 / / _ _ _
+
+*/
+void Instruction::LSR_Memory(uint16_t memoryAddress) {
+  uint8_t memoryValue = busController.read(memoryAddress);
+  busController.write(memoryAddress, alu.shiftRightOperation(memoryValue));
+}
+
+/*
+ROL - Rotate one bit left (memory or accumulator)
+
+             +------------------------------+
+             |         M or A               |
+             |   +-+-+-+-+-+-+-+-+    +-+   |
+Operation:   +-< |7|6|5|4|3|2|1|0| <- |C| <-+         N Z C I D V
+                 +-+-+-+-+-+-+-+-+    +-+             / / / _ _ _
+                               (Ref: 10.3)
+*/
+void Instruction::ROL_Memory(uint16_t memoryAddress) {
+  uint8_t memoryValue = busController.read(memoryAddress);
+  // Get out current carry value to set the first bit of our value
+  bool carryBeforeRotation =
+      registerController.getStatusRegister()->getStatus(Carry);
+  uint8_t result = alu.shiftLeftOperation(memoryValue) | carryBeforeRotation;
+
+  // Calculating the flags again, because otherwise the negative flag is false
+  registerController.getStatusRegister()->setValue(result, 0);
+
+  // Get our last bit before the shift and set the carry according to it
+  // The last bit is now the carry value, and we rotated the value
+  registerController.getStatusRegister()->setStatus(
+      Carry, (memoryValue & 0x80) == 0x80);
+  busController.write(memoryAddress, result);
+}
+
+/*
+ROR - Rotate one bit right (memory or accumulator)
+
+             +------------------------------+
+             |                              |
+             |   +-+    +-+-+-+-+-+-+-+-+   |
+Operation:   +-> |C| -> |7|6|5|4|3|2|1|0| >-+         N Z C I D V
+                 +-+    +-+-+-+-+-+-+-+-+             / / / _ _ _
+                              (Ref: 10.4)
+*/
+void Instruction::ROR_Memory(uint16_t memoryAddress) {
+  uint8_t memoryValue = busController.read(memoryAddress);
+  // Get out current carry value to set the last bit of our value
+  bool carryBeforeRotation =
+      registerController.getStatusRegister()->getStatus(Carry);
+  uint8_t result =
+      alu.shiftRightOperation(memoryValue) | (carryBeforeRotation << 0x7);
+
+  // Calculating the flags again, because otherwise the negative flag is false
+  registerController.getStatusRegister()->setValue(result, 0);
+
+  // Get our first bit before the shift and set the carry according to it
+  // The first bit is now the carry value, and we rotated the value
+  registerController.getStatusRegister()->setStatus(Carry,
+                                                    (memoryValue & 0x1) == 0x1);
+  busController.write(memoryAddress, result);
+}
+
+/*
+SBC - Subtract memory from accumulator with borrow
+
+Operation:  A - M - C -> A   N Z C I D V
+                             / / / _ _ /
+*/
+void Instruction::SBC(uint8_t value) {
+  uint8_t aValue = registerController.getRegisterValue(A);
+  uint8_t result = alu.subOperation(aValue, value);
+  registerController.setRegisterValue(A, result);
+}
+
+/*
+JMP - Jump to new location
+
+Operation:  (PC + 1) -> PCL                           N Z C I D V
+            (PC + 2) -> PCH   (Ref: 4.0.2)            _ _ _ _ _ _
+                              (Ref: 9.8.1)
+*/
+void Instruction::JMP(uint16_t memoryAddress) {
+  registerController.setProgramCounter(memoryAddress);
+}
+
+void Instruction::branchConditional(Flag flag, bool condition,
+                                    uint16_t jumpAddress) {
+  // If the flag meets the condition just do a jump
+  if (registerController.getStatusRegister()->getStatus(flag) == condition) {
+    JMP(jumpAddress);
+  }
+}
+
+/*
+BCC - Branch on Carry Clear
+                                                      N Z C I D V
+Operation:  Branch on C = 0                           _ _ _ _ _ _
+                               (Ref: 4.1.1.3)
+*/
+void Instruction::BCC(uint16_t memoryAddress) {
+  branchConditional(Carry, false, memoryAddress);
+}
+
+/*
+BCS - Branch on carry set
+
+Operation:  Branch on C = 1                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.4)
+*/
+void Instruction::BCS(uint16_t memoryAddress) {
+  branchConditional(Carry, true, memoryAddress);
+}
+
+/*
+BEQ - Branch on result zero
+                                                      N Z C I D V
+Operation:  Branch on Z = 1                           _ _ _ _ _ _
+                               (Ref: 4.1.1.5)
+*/
+void Instruction::BEQ(uint16_t memoryAddress) {
+  branchConditional(Zero, true, memoryAddress);
+}
+
+/*
+BMI - Branch on result minus
+
+Operation:  Branch on N = 1                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.1)
+*/
+void Instruction::BMI(uint16_t memoryAddress) {
+  branchConditional(Negative, true, memoryAddress);
+}
+
+/*
+BNE - Branch on result not zero
+
+Operation:  Branch on Z = 0                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.6)
+*/
+void Instruction::BNE(uint16_t memoryAddress) {
+  branchConditional(Zero, false, memoryAddress);
+}
+
+/*
+BPL - Branch on result plus
+
+Operation:  Branch on N = 0                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.2)
+*/
+void Instruction::BPL(uint16_t memoryAddress) {
+  branchConditional(Negative, false, memoryAddress);
+}
+
+/*
+BVC - Branch on overflow clear
+
+Operation:  Branch on V = 0                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.8)
+*/
+void Instruction::BVC(uint16_t memoryAddress) {
+  branchConditional(Overflow, false, memoryAddress);
+}
+
+/*
+BVS - Branch on overflow set
+
+Operation:  Branch on V = 1                           N Z C I D V
+                                                      _ _ _ _ _ _
+                               (Ref: 4.1.1.7)
+*/
+void Instruction::BVS(uint16_t memoryAddress) {
+  branchConditional(Overflow, true, memoryAddress);
+}
+
+/*
+CMP - Compare memory and accumulator
+
+Operation:  A - M                                     N Z C I D V
+                                                      / / / _ _ _
+                                (Ref: 4.2.1)
+*/
+void Instruction::CMP(uint16_t memoryAddress) {
+  uint8_t aValue = registerController.getRegisterValue(A);
+  alu.subOperation(aValue, busController.read(memoryAddress));
+}
+
+/*
+CPX - Compare Memory and Index X
+                                                      N Z C I D V
+Operation:  X - M                                     / / / _ _ _
+                                 (Ref: 7.8)
+*/
+void Instruction::CPX(uint16_t memoryAddress) {
+  uint8_t xValue = registerController.getRegisterValue(X);
+  alu.subOperation(xValue, busController.read(memoryAddress));
+}
+
+/*
+CPY - Compare memory and index Y
+                                                      N Z C I D V
+Operation:  Y - M                                     / / / _ _ _
+                                 (Ref: 7.9)
+*/
+void Instruction::CPY(uint16_t memoryAddress) {
+  uint8_t yValue = registerController.getRegisterValue(Y);
+  alu.subOperation(yValue, busController.read(memoryAddress));
+}
+
+/*
+  BIT             BIT Test bits in memory with accumulator              BIT
+
+  Operation:  A /\ M, M7 -> N, M6 -> V
+
+  Bit 6 and 7 are transferred to the status register.   N Z C I D V
+  If the result of A /\ M is zero then Z = 1, otherwise M7/ _ _ _ M6
+  Z = 0
+                               (Ref: 4.2.1.1)
+*/
+void Instruction::BIT(uint16_t memoryAddress) {
+  uint8_t aValue = registerController.getRegisterValue(A);
+  uint8_t memory = busController.read(memoryAddress);
+  alu.andOperation(aValue, memory);
+  registerController.getStatusRegister()->setStatus(Negative, memory >> 7);
+  registerController.getStatusRegister()->setStatus(Overflow,
+                                                    (memory >> 6) & 0x1);
+}
+
+/*
+JSR - Jump to new location saving return address
+
+Operation:  PC + 2 toS, (PC + 1) -> PCL               N Z C I D V
+                          (PC + 2) -> PCH             _ _ _ _ _ _
+                                 (Ref: 8.1)
+*/
+void Instruction::JSR(uint16_t memoryAddress) {
+  // TODO Check length needed
+  registerController.getStack()->pushWord(
+      registerController.getProgramCounter() + 2);
+  JMP(memoryAddress);
+}
+
+/*
+RTS - Return from subroutine
+                                                      N Z C I D V
+Operation:  PC fromS, PC + 1 -> PC                    _ _ _ _ _ _
+                                 (Ref: 8.2)
+*/
+void Instruction::RTS() {
+  registerController.setProgramCounter(
+      registerController.getStack()->pullWord());
 }

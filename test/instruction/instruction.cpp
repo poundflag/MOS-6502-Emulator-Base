@@ -1,4 +1,5 @@
 #include "../../src/instruction/instruction.h"
+#include "../../src/alu.h"
 #include "../../src/bus/buscontroller.h"
 #include "../../src/bus/model/busdevice.h"
 #include "../../src/bus/model/ram.h"
@@ -12,7 +13,8 @@ protected:
   Ram *ram = new Ram(0x10);
   Ram *stackRam = new Ram(0x100);
   RegisterController registerController = RegisterController(busController);
-  Instruction instr = Instruction(registerController, busController);
+  ALU alu = ALU(registerController);
+  Instruction instr = Instruction(registerController, busController, alu);
   void SetUp() {
     ram->addAddress({0x0, 0x10});
     busController.addDevice(ram);
@@ -595,7 +597,8 @@ TEST_F(InstructionTest, ADCWithCarryFlagTrueAndOverflow2) {
                   registerController.getStatusRegister()->getStatus(Carry));
 }
 
-TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingZeroAndNothingElseSet) {
+TEST_F(InstructionTest,
+       ASLMemorySimpleShiftWithTheCarryBeingZeroAndNothingElseSet) {
   busController.write(0x2, 2);
   instr.ASL_Memory(0x2);
   GTEST_ASSERT_EQ(0x4, busController.read(0x2));
@@ -603,10 +606,181 @@ TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingZeroAndNothingElseS
                   registerController.getStatusRegister()->getStatus(Carry));
 }
 
-TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingSetAndNothingElse) {
-  busController.write(0x2, 80);
+TEST_F(InstructionTest, ASLMemorySimpleShiftWithTheCarryBeingSetAndZero) {
+  busController.write(0x2, 0x80);
   instr.ASL_Memory(0x2);
   GTEST_ASSERT_EQ(0x00, busController.read(0x2));
   GTEST_ASSERT_EQ(true,
                   registerController.getStatusRegister()->getStatus(Carry));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, ASLMemorySimpleShiftWithNegativeBeingSet) {
+  busController.write(0x2, 0x70);
+  instr.ASL_Memory(0x2);
+  GTEST_ASSERT_EQ(0xE0, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest,
+       LSRMemorySimpleShiftWithTheCarryBeingZeroAndNothingElseSet) {
+  busController.write(0x2, 2);
+  instr.LSR_Memory(0x2);
+  GTEST_ASSERT_EQ(0x1, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, LSRMemorySimpleShiftWithTheCarryBeingSetAndZero) {
+  busController.write(0x2, 0x1);
+  instr.LSR_Memory(0x2);
+  GTEST_ASSERT_EQ(0x00, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+}
+
+TEST_F(InstructionTest, LSRMemorySimpleShiftWithNegativeBeingZero) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  busController.write(0x2, 0xF9);
+  instr.LSR_Memory(0x2);
+  GTEST_ASSERT_EQ(0x7C, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, ROLMemoryWithTheCarryOn) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  busController.write(0x2, 0x4);
+  instr.ROL_Memory(0x2);
+  GTEST_ASSERT_EQ(0x9, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ROLMemoryWithTheCarryOff) {
+  registerController.getStatusRegister()->setStatus(Carry, false);
+  busController.write(0x2, 0x4);
+  instr.ROL_Memory(0x2);
+  GTEST_ASSERT_EQ(0x8, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, ROLMemoryWithTheCarryOnAndAnOverflow) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  busController.write(0x2, 0xFF);
+  instr.ROL_Memory(0x2);
+  GTEST_ASSERT_EQ(0xFF, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, RORMemoryWithTheCarryOn) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  busController.write(0x2, 0x2);
+  instr.ROR_Memory(0x2);
+  GTEST_ASSERT_EQ(0x81, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, RORMemoryWithTheCarryOff) {
+  registerController.getStatusRegister()->setStatus(Carry, false);
+  busController.write(0x2, 0x2);
+  instr.ROR_Memory(0x2);
+  GTEST_ASSERT_EQ(0x1, busController.read(0x2));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, RORMemoryWithTheCarryOnAndAnOverflow) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  busController.write(0x2, 0xFF);
+  instr.ROR_Memory(0x2);
+  GTEST_ASSERT_EQ(0xFF, busController.read(0x2));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, SBCWithSimpleNumbersAndCarryOff) {
+  registerController.setRegisterValue(A, 0x6);
+  instr.SBC(0x4);
+  GTEST_ASSERT_EQ(0x1, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, SBCWithSimpleNumbersAndCarryOn) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0x6);
+  instr.SBC(0x4);
+  GTEST_ASSERT_EQ(0x2, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, SBCWithSimpleCarryFlagAndOverflow) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0xD0);
+  instr.SBC(0x70);
+  GTEST_ASSERT_EQ(0x60, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Overflow));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+}
+
+TEST_F(InstructionTest, SBCWithSimpleCarryFlagAndOverflow2) {
+  registerController.getStatusRegister()->setStatus(Carry, true);
+  registerController.setRegisterValue(A, 0x50);
+  instr.SBC(0xB0);
+  GTEST_ASSERT_EQ(0xA0, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Carry));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Overflow));
+}
+
+TEST_F(InstructionTest, JMP) {
+  registerController.setProgramCounter(0x1234);
+  instr.JMP(0x4321);
+  GTEST_ASSERT_EQ(0x4321, registerController.getProgramCounter());
+}
+
+// TODO Add branching tests!!!
+// TODO CMP
+// TODO JSR
+
+TEST_F(InstructionTest, BITWithZeroSet) {
+  busController.write(2, 5);
+  registerController.setRegisterValue(A, 0xA);
+  instr.BIT(2);
+  GTEST_ASSERT_EQ(0xA, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Zero));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Negative));
+}
+
+TEST_F(InstructionTest, BITWithNegativeAndOverflowSet) {
+  busController.write(2, 0xFF);
+  registerController.setRegisterValue(A, 0xF3);
+  instr.BIT(2);
+  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(A));
+  GTEST_ASSERT_EQ(false,
+                  registerController.getStatusRegister()->getStatus(Zero));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Negative));
+  GTEST_ASSERT_EQ(true,
+                  registerController.getStatusRegister()->getStatus(Overflow));
 }

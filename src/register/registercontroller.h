@@ -11,6 +11,8 @@ enum Registers {
   A = 0,
   X,
   Y,
+  PCL,
+  PCH,
   // Current size of the enum
   STATE_COUNT
 };
@@ -24,9 +26,11 @@ private:
 public:
   RegisterController(BusController &busController);
   uint8_t getRegisterValue(Registers registerIndex);
+  void setRegisterValue(Registers registerIndex, uint8_t value);
+  uint16_t getProgramCounter();
+  void setProgramCounter(uint16_t address);
   StatusRegister *getStatusRegister();
   Stack *getStack();
-  void setRegisterValue(Registers registerIndex, uint8_t value);
   ~RegisterController();
 };
 

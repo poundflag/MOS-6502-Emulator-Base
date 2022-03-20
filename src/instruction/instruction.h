@@ -1,3 +1,4 @@
+#include "../alu.h"
 #include "../bus/buscontroller.h"
 #include "../register/registercontroller.h"
 #include <stdint.h>
@@ -5,14 +6,16 @@
 #ifndef __INSTRUCTION_H__
 #define __INSTRUCTION_H__
 
-class Instruction {
+class Instruction { // TODO Move files to root dir.s
 private:
   RegisterController &registerController;
   BusController &busController;
+  ALU &alu;
+  void branchConditional(Flag flag, bool condition, uint16_t jumpAddress);
 
 public:
   Instruction(RegisterController &registerController,
-              BusController &busController);
+              BusController &busController, ALU &alu);
   uint8_t absolute(uint16_t address);
   void LDA(uint8_t value);
   void LDX(uint8_t value);
@@ -48,6 +51,25 @@ public:
   void PLP();
   void ADC(uint8_t value);
   void ASL_Memory(uint16_t memoryAddress);
+  void LSR_Memory(uint16_t memoryAddress); // TODO Implement acc call
+  void ROL_Memory(uint16_t memoryAddress);
+  void ROR_Memory(uint16_t memoryAddress);
+  void SBC(uint8_t value);
+  void JMP(uint16_t memoryAddress);
+  void BCC(uint16_t memoryAddress);
+  void BCS(uint16_t memoryAddress);
+  void BEQ(uint16_t memoryAddress);
+  void BMI(uint16_t memoryAddress);
+  void BNE(uint16_t memoryAddress);
+  void BPL(uint16_t memoryAddress);
+  void BVC(uint16_t memoryAddress);
+  void BVS(uint16_t memoryAddress);
+  void CMP(uint16_t memoryAddress);
+  void CPX(uint16_t memoryAddress);
+  void CPY(uint16_t memoryAddress);
+  void BIT(uint16_t memoryAddress);
+  void JSR(uint16_t memoryAddress);
+  void RTS();
 };
 
 #endif // __INSTRUCTION_H__

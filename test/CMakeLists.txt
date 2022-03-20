@@ -6,6 +6,8 @@ enable_testing()
 
 add_library(instruction ../src/instruction/instruction.cpp)
 
+add_library(alu ../src/alu.cpp)
+
 add_executable(test test.cpp)
 
 target_link_libraries(test 
@@ -13,6 +15,7 @@ target_link_libraries(test
     PUBLIC buscontroller
     PUBLIC registercontroller
     PUBLIC instruction
+    PUBLIC alu
 )
 
 include(GoogleTest)

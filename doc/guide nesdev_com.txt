@@ -256,26 +256,26 @@ the 6510 (the C64 processor).
   |
   |     ADC   Add Memory to Accumulator with Carry imp
   |     AND   "AND" Memory with Accumulator imp
-  |     ASL   Shift Left One Bit (Memory or Accumulator)
+  |     ASL   Shift Left One Bit (Memory or Accumulator) imp
   |
-  |     BCC   Branch on Carry Clear
-  |     BCS   Branch on Carry Set
-  |     BEQ   Branch on Result Zero
-  |     BIT   Test Bits in Memory with Accumulator
-  |     BMI   Branch on Result Minus
-  |     BNE   Branch on Result not Zero
-  |     BPL   Branch on Result Plus
+  |     BCC   Branch on Carry Clear imp
+  |     BCS   Branch on Carry Set imp
+  |     BEQ   Branch on Result Zero imp
+  |     BIT   Test Bits in Memory with Accumulator imp
+  |     BMI   Branch on Result Minus imp
+  |     BNE   Branch on Result not Zero imp
+  |     BPL   Branch on Result Plus imp
   |     BRK   Force Break
-  |     BVC   Branch on Overflow Clear
-  |     BVS   Branch on Overflow Set
+  |     BVC   Branch on Overflow Clear imp
+  |     BVS   Branch on Overflow Set imp
   |
   |     CLC   Clear Carry Flag imp
   |     CLD   Clear Decimal Mode imp
   |     CLI   Clear interrupt Disable Bit imp
   |     CLV   Clear Overflow Flag imp
-  |     CMP   Compare Memory and Accumulator
-  |     CPX   Compare Memory and Index X
-  |     CPY   Compare Memory and Index Y
+  |     CMP   Compare Memory and Accumulator imp
+  |     CPX   Compare Memory and Index X imp
+  |     CPY   Compare Memory and Index Y imp
   |
   |     DEC   Decrement Memory by One imp
   |     DEX   Decrement Index X by One imp
@@ -287,7 +287,7 @@ the 6510 (the C64 processor).
   |     INX   Increment Index X by One imp
   |     INY   Increment Index Y by One imp
   |
-  |     JMP   Jump to New Location
+  |     JMP   Jump to New Location imp
   |
   +------------------------------------------------------------------------
 
@@ -298,12 +298,12 @@ the 6510 (the C64 processor).
                                                                           |
   ------------------------------------------------------------------------+
                                                                           |
-        JSR   Jump to New Location Saving Return Address                  |
+        JSR   Jump to New Location Saving Return Address imp              |
                                                                           |
         LDA   Load Accumulator with Memory imp                            |
         LDX   Load Index X with Memory imp                                |
         LDY   Load Index Y with Memory imp                                |
-        LSR   Shift Right One Bit (Memory or Accumulator)                 |
+        LSR   Shift Right One Bit (Memory or Accumulator) imp             |
                                                                           |
         NOP   No Operation                                                |
                                                                           |
@@ -314,12 +314,12 @@ the 6510 (the C64 processor).
         PLA   Pull Accumulator from Stack imp                             |
         PLP   Pull Processor Status from Stack imp                        |
                                                                           |
-        ROL   Rotate One Bit Left (Memory or Accumulator)                 |
-        ROR   Rotate One Bit Right (Memory or Accumulator)                |
+        ROL   Rotate One Bit Left (Memory or Accumulator) imp             |
+        ROR   Rotate One Bit Right (Memory or Accumulator) imp            |
         RTI   Return from Interrupt                                       |
-        RTS   Return from Subroutine                                      |
+        RTS   Return from Subroutine imp                                  |
                                                                           |
-        SBC   Subtract Memory from Accumulator with Borrow                |
+        SBC   Subtract Memory from Accumulator with Borrow imp            |
         SEC   Set Carry Flag imp                                          |
         SED   Set Decimal Mode imp                                        |
         SEI   Set Interrupt Disable Status imp                            |
