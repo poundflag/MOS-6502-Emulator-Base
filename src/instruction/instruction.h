@@ -16,7 +16,6 @@ private:
 public:
   Instruction(RegisterController &registerController,
               BusController &busController, ALU &alu);
-  uint8_t absolute(uint16_t address);
   void LDA(uint8_t value);
   void LDX(uint8_t value);
   void LDY(uint8_t value);

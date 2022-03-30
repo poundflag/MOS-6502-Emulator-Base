@@ -31,6 +31,10 @@ void RegisterController::setProgramCounter(uint16_t address) {
   setRegisterValue(PCH, address >> 8);
 }
 
+void RegisterController::incrementProgramCounter() {
+  setProgramCounter(getProgramCounter() + 1);
+}
+
 RegisterController::~RegisterController() {
   delete statusRegister;
   delete stackRegister;

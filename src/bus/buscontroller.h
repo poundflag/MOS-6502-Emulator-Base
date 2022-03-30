@@ -9,7 +9,6 @@ const int BUS_DEVICE_ARRAY_SIZE = 100;
 
 class BusController {
 private:
-  // TODO: Dynamic Pointer array inside here
   BusDevice **busDeviceArray;
   int arrayIndex;
 

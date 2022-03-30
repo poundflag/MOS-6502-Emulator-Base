@@ -4,7 +4,7 @@ include_directories(googletest/include) # this is so we can #include <gtest/gtes
 
 enable_testing()
 
-add_library(instruction ../src/instruction/instruction.cpp)
+add_library(instructionTest ../src/instruction/instruction.cpp)
 
 add_library(alu ../src/alu.cpp)
 
@@ -14,6 +14,7 @@ target_link_libraries(test
     PUBLIC gtest # link google test to this executable
     PUBLIC buscontroller
     PUBLIC registercontroller
+    PUBLIC instructionTest
     PUBLIC instruction
     PUBLIC alu
 )

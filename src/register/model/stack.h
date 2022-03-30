@@ -4,8 +4,6 @@
 #ifndef __STACK_H__
 #define __STACK_H__
 
-const uint16_t STACK_POINTER_PREFIX = 0x0100;
-
 class Stack : public Register {
 private:
   BusController &busController;

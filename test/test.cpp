@@ -3,6 +3,7 @@
 #include "register/model/statusregister.cpp"
 #include "register/registercontroller.cpp"
 #include "instruction/instruction.cpp"
+#include "instruction/addressmodeconversion.cpp"
 /*
 TEST(myfunctions, add)
 {

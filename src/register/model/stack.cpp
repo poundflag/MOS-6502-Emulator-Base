@@ -3,13 +3,13 @@
 Stack::Stack(BusController &busController) : busController{busController} {}
 
 void Stack::push(uint8_t data) {
-  busController.write(STACK_POINTER_PREFIX + value, data);
+  busController.write(value, data);
   value++;
 }
 
 uint8_t Stack::pull() {
   value--;
-  return busController.read(STACK_POINTER_PREFIX + value);
+  return busController.read(value);
 }
 
 void Stack::pushWord(uint16_t data) {

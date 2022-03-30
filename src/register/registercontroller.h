@@ -29,6 +29,7 @@ public:
   void setRegisterValue(Registers registerIndex, uint8_t value);
   uint16_t getProgramCounter();
   void setProgramCounter(uint16_t address);
+  void incrementProgramCounter();
   StatusRegister *getStatusRegister();
   Stack *getStack();
   ~RegisterController();

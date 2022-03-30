@@ -5,10 +5,6 @@ Instruction::Instruction(RegisterController &registerController,
     : registerController{registerController},
       busController{busController}, alu{alu} {}
 
-uint8_t Instruction::absolute(uint16_t address) {
-  return busController.read(address);
-}
-
 /*
 LDA - LDA Load accumulator with memory
 
