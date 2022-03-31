@@ -43,9 +43,9 @@ uint8_t AddressModeConversion::indexedIndirect(uint8_t address) {
 }
 
 uint8_t AddressModeConversion::indirectIndexed(uint8_t address) {
-
   uint8_t temp =
       (absolute(address) + registerController.getRegisterValue(Y)) & 0xFF;
+
   uint8_t temp1 = (absolute((address + 1) & 0xFF) +
                    registerController.getStatusRegister()->getStatus(Carry)) &
                   0xFF;
