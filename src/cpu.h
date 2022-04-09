@@ -1,5 +1,6 @@
 #include "alu.h"
 #include "bus/buscontroller.h"
+#include "bus/model/ram.h"
 #include "instruction/instruction.h"
 #include "instruction/instructiondecoderom.h"
 #include "register/registercontroller.h"
@@ -19,12 +20,13 @@ private:
   bool resetCPU;
 
   void fetchResetVector();
+  uint8_t fetch();
 
 public:
   CPU();
-  uint8_t fetch();
   void step(int steps);
   void run();
+  BusController &getBusController();
   ~CPU();
 };
 

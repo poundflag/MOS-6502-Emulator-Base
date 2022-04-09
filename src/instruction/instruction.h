@@ -50,9 +50,13 @@ public:
   void PLP();
   void ADC(uint8_t value);
   void ASL_Memory(uint16_t memoryAddress);
-  void LSR_Memory(uint16_t memoryAddress); // TODO Implement acc call
+  void ASL_Accumulator();
+  void LSR_Memory(uint16_t memoryAddress);
+  void LSR_Accumulator();
   void ROL_Memory(uint16_t memoryAddress);
+  void ROL_Accumulator();
   void ROR_Memory(uint16_t memoryAddress);
+  void ROR_Accumulator(); // TODO Write test
   void SBC(uint8_t value);
   void JMP(uint16_t memoryAddress);
   void BCC(uint16_t memoryAddress);

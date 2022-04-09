@@ -1,4 +1,5 @@
 #include "model/busdevice.h"
+#include "model/ram.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -20,6 +21,7 @@ public:
 
   // Add a BusDevice to be interfaced with
   void addDevice(BusDevice *busDevice);
+  void addRamChip(uint16_t startAddress, uint16_t endAddress);
 
   // Read a value from the bus
   uint8_t read(uint16_t address);

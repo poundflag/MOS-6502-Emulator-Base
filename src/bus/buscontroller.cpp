@@ -24,6 +24,12 @@ void BusController::addDevice(BusDevice *busDevice) {
   arrayIndex++;
 }
 
+void BusController::addRamChip(uint16_t startAddress, uint16_t endAddress) {
+  Ram *ram = new Ram(endAddress - startAddress);
+  ram->addAddress({startAddress, endAddress});
+  addDevice(ram);
+}
+
 AddressRange BusController::getAddressRange(uint16_t address,
                                             BusDevice *currentDevice) {
   if (currentDevice != NULL) {

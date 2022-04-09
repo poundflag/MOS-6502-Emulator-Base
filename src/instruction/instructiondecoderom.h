@@ -17,8 +17,9 @@ public:
   InstructionDecodeRom(Instruction &instruction,
                        RegisterController &registerController,
                        BusController &busController);
-  void decodeOpcode(uint8_t opcode);
+  bool decodeOpcode(uint8_t opcode);
   uint16_t getNextWord();
+  uint8_t getNextByte();
   ~InstructionDecodeRom();
 };
 

@@ -6,8 +6,6 @@ enable_testing()
 
 add_library(instructionTest ../src/instruction/instruction.cpp)
 
-add_library(alu ../src/alu.cpp)
-
 add_executable(test test.cpp)
 
 target_link_libraries(test 

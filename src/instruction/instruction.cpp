@@ -420,6 +420,11 @@ void Instruction::ASL_Memory(uint16_t memoryAddress) {
   busController.write(memoryAddress, alu.shiftLeftOperation(memoryValue));
 }
 
+void Instruction::ASL_Accumulator() {
+  uint8_t accValue = registerController.getRegisterValue(A);
+  registerController.setRegisterValue(A, accValue);
+}
+
 /*
 LSR - Shift right one bit (memory or accumulator)
 
@@ -432,6 +437,11 @@ Operation:  0 -> |7|6|5|4|3|2|1|0| -> C
 void Instruction::LSR_Memory(uint16_t memoryAddress) {
   uint8_t memoryValue = busController.read(memoryAddress);
   busController.write(memoryAddress, alu.shiftRightOperation(memoryValue));
+}
+
+void Instruction::LSR_Accumulator() {
+  uint8_t accValue = registerController.getRegisterValue(A);
+  registerController.setRegisterValue(A, alu.shiftRightOperation(accValue));
 }
 
 /*
@@ -461,6 +471,23 @@ void Instruction::ROL_Memory(uint16_t memoryAddress) {
   busController.write(memoryAddress, result);
 }
 
+void Instruction::ROL_Accumulator() { // TODO Refine
+  uint8_t accValue = registerController.getRegisterValue(A);
+  // Get out current carry value to set the first bit of our value
+  bool carryBeforeRotation =
+      registerController.getStatusRegister()->getStatus(Carry);
+  uint8_t result = alu.shiftLeftOperation(accValue) | carryBeforeRotation;
+
+  // Calculating the flags again, because otherwise the negative flag is false
+  registerController.getStatusRegister()->setValue(result, 0);
+
+  // Get our last bit before the shift and set the carry according to it
+  // The last bit is now the carry value, and we rotated the value
+  registerController.getStatusRegister()->setStatus(Carry,
+                                                    (accValue & 0x80) == 0x80);
+  registerController.setRegisterValue(A, accValue);
+}
+
 /*
 ROR - Rotate one bit right (memory or accumulator)
 
@@ -487,6 +514,24 @@ void Instruction::ROR_Memory(uint16_t memoryAddress) {
   registerController.getStatusRegister()->setStatus(Carry,
                                                     (memoryValue & 0x1) == 0x1);
   busController.write(memoryAddress, result);
+}
+
+void Instruction::ROR_Accumulator() { // TODO Summarize with other method
+  uint8_t accValue = registerController.getRegisterValue(A);
+  // Get out current carry value to set the last bit of our value
+  bool carryBeforeRotation =
+      registerController.getStatusRegister()->getStatus(Carry);
+  uint8_t result =
+      alu.shiftRightOperation(accValue) | (carryBeforeRotation << 0x7);
+
+  // Calculating the flags again, because otherwise the negative flag is false
+  registerController.getStatusRegister()->setValue(result, 0);
+
+  // Get our first bit before the shift and set the carry according to it
+  // The first bit is now the carry value, and we rotated the value
+  registerController.getStatusRegister()->setStatus(Carry,
+                                                    (accValue & 0x1) == 0x1);
+  registerController.setRegisterValue(A, accValue);
 }
 
 /*

@@ -18,13 +18,16 @@ uint8_t CPU::fetch() {
 }
 
 void CPU::step(int steps) {
-  for (int i = 0; i < steps; i++) {
-    instructionDecodeRom->decodeOpcode(fetch());
+  bool lBreak = false;
+  for (int i = 0; i < steps && !lBreak; i++) {
+    lBreak = instructionDecodeRom->decodeOpcode(fetch());
     registerController.incrementProgramCounter();
   }
 }
 
 void CPU::run() {}
+
+BusController &CPU::getBusController() { return busController; }
 
 // Fetch memory content in address $FFFC and $FFFD
 // on reset or power-up
