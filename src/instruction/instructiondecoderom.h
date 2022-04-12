@@ -3,6 +3,7 @@
 #include "../register/registercontroller.h"
 #include "addressmodeconversion.h"
 #include <stdint.h>
+#include <iostream>
 
 #ifndef __INSTRUCTIONDECODEROM_H__
 #define __INSTRUCTIONDECODEROM_H__

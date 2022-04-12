@@ -18,16 +18,21 @@ uint8_t CPU::fetch() {
 }
 
 void CPU::step(int steps) {
-  bool lBreak = false;
-  for (int i = 0; i < steps && !lBreak; i++) {
+  bool lBreak = registerController.getStatusRegister()->getStatus(BreakSignal);
+  int i = 0;
+  for (i = 0; i < steps && !lBreak; i++) {
     lBreak = instructionDecodeRom->decodeOpcode(fetch());
     registerController.incrementProgramCounter();
   }
+
+  std::cout << i << std::endl;
 }
 
 void CPU::run() {}
 
 BusController &CPU::getBusController() { return busController; }
+
+RegisterController &CPU::getRegisterController() { return registerController; }
 
 // Fetch memory content in address $FFFC and $FFFD
 // on reset or power-up

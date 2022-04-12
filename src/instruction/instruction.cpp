@@ -252,8 +252,8 @@ Operation:  A EOR M -> A   N Z C I D V
 */
 void Instruction::EOR(uint16_t address) {
   uint8_t aValue = registerController.getRegisterValue(A);
-  uint8_t memoryValue = busController.read(address);
-  uint8_t result = aValue ^ memoryValue;
+  uint8_t memoryValue = busController.read(address); // TODO NOT USED
+  uint8_t result = aValue ^ address;                 //  TODO ALU?
   registerController.setRegisterValue(A, result);
   registerController.getStatusRegister()->setNegative(result);
   registerController.getStatusRegister()->setZero(result);
@@ -307,10 +307,12 @@ Operation:  S -> X   N Z C I D V
                      / / _ _ _ _
 */
 void Instruction::TSX() {
-  uint8_t stackValue = registerController.getStack()->pull();
+  uint8_t stackValue = registerController.getStack()->getValue();
+  uint8_t xValue = registerController.getRegisterValue(X);
   registerController.setRegisterValue(X, stackValue);
   registerController.getStatusRegister()->setNegative(stackValue);
-  registerController.getStatusRegister()->setZero(stackValue);
+  // registerController.getStatusRegister()->setZero(stackValue);
+  registerController.getStatusRegister()->setStatus(Zero, xValue != stackValue);
 }
 
 /*
@@ -333,10 +335,12 @@ Operation:  X -> S   N Z C I D V
                      _ _ _ _ _ _
 */
 void Instruction::TXS() {
-  uint8_t xValue = registerController.getRegisterValue(X);
+  /*uint8_t xValue = registerController.getRegisterValue(X);
   registerController.getStack()->push(xValue);
   registerController.getStatusRegister()->setNegative(xValue);
-  registerController.getStatusRegister()->setZero(xValue);
+  registerController.getStatusRegister()->setZero(xValue);*/
+  uint8_t xValue = registerController.getRegisterValue(X);
+  registerController.getStack()->setValue(xValue);
 }
 
 /*
@@ -378,10 +382,13 @@ void Instruction::PHP() {
 PLA - PLA Pull accumulator from stack
 
 Operation:  A from S   N Z C I D V
-                       _ _ _ _ _ _
+                       / / _ _ _ _
 */
 void Instruction::PLA() {
-  registerController.setRegisterValue(A, registerController.getStack()->pull());
+  uint8_t aValue = registerController.getStack()->pull();
+  registerController.setRegisterValue(A, aValue);
+  registerController.getStatusRegister()->setNegative(aValue);
+  registerController.getStatusRegister()->setZero(aValue);
 }
 
 /*
@@ -554,14 +561,19 @@ Operation:  (PC + 1) -> PCL                           N Z C I D V
                               (Ref: 9.8.1)
 */
 void Instruction::JMP(uint16_t memoryAddress) {
-  registerController.setProgramCounter(memoryAddress);
+  // Setting the program counter minus one
+  // because of the increment offset in the decode class
+  registerController.setProgramCounter(memoryAddress - 1);
 }
 
 void Instruction::branchConditional(Flag flag, bool condition,
-                                    uint16_t jumpAddress) {
+                                    int8_t jumpAddress) {
   // If the flag meets the condition just do a jump
   if (registerController.getStatusRegister()->getStatus(flag) == condition) {
-    JMP(jumpAddress);
+    // Calculate the goto jump and calculate the offset
+    uint16_t newProgramCounter =
+        (registerController.getProgramCounter() - 1) + jumpAddress;
+    JMP(newProgramCounter + 2);
   }
 }
 
@@ -660,7 +672,10 @@ Operation:  A - M                                     N Z C I D V
 */
 void Instruction::CMP(uint16_t memoryAddress) {
   uint8_t aValue = registerController.getRegisterValue(A);
-  alu.subOperation(aValue, busController.read(memoryAddress));
+  bool carry = registerController.getStatusRegister()->getStatus(Carry);
+  bool overflow = registerController.getStatusRegister()->getStatus(Overflow);
+  alu.subOperation(aValue, memoryAddress);
+  registerController.getStatusRegister()->setStatus(Overflow, overflow);
 }
 
 /*
@@ -669,9 +684,12 @@ CPX - Compare Memory and Index X
 Operation:  X - M                                     / / / _ _ _
                                  (Ref: 7.8)
 */
-void Instruction::CPX(uint16_t memoryAddress) {
+void Instruction::CPX(
+    uint16_t memoryAddress) { // TODO FIX DATATYPE IN ALL CP INSTRUCT
+  bool overflow = registerController.getStatusRegister()->getStatus(Overflow);
   uint8_t xValue = registerController.getRegisterValue(X);
-  alu.subOperation(xValue, busController.read(memoryAddress));
+  alu.subOperation(xValue, memoryAddress);
+  registerController.getStatusRegister()->setStatus(Overflow, overflow);
 }
 
 /*
@@ -681,8 +699,10 @@ Operation:  Y - M                                     / / / _ _ _
                                  (Ref: 7.9)
 */
 void Instruction::CPY(uint16_t memoryAddress) {
+  bool overflow = registerController.getStatusRegister()->getStatus(Overflow);
   uint8_t yValue = registerController.getRegisterValue(Y);
-  alu.subOperation(yValue, busController.read(memoryAddress));
+  alu.subOperation(yValue, memoryAddress); // TODO CHECK LINE0x57e
+  registerController.getStatusRegister()->setStatus(Overflow, overflow);
 }
 
 /*
@@ -714,8 +734,18 @@ Operation:  PC + 2 toS, (PC + 1) -> PCL               N Z C I D V
 void Instruction::JSR(uint16_t memoryAddress) {
   // TODO Check length needed
   registerController.getStack()->pushWord(
-      registerController.getProgramCounter() + 2);
+      registerController.getProgramCounter());
   JMP(memoryAddress);
+}
+
+/*
+BRK - Force Break
+
+Operation: Forced Interrupt PC + 2 toS P toS         N Z C I D V
+                                                     _ _ _ 1 _ _
+*/
+void Instruction::BRK() {
+  registerController.getStatusRegister()->setStatus(BreakSignal, true);
 }
 
 /*

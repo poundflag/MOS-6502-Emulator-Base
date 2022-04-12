@@ -27,6 +27,7 @@ public:
   void step(int steps);
   void run();
   BusController &getBusController();
+  RegisterController &getRegisterController();
   ~CPU();
 };
 

@@ -11,7 +11,7 @@ private:
   RegisterController &registerController;
   BusController &busController;
   ALU &alu;
-  void branchConditional(Flag flag, bool condition, uint16_t jumpAddress);
+  void branchConditional(Flag flag, bool condition, int8_t jumpAddress);
 
 public:
   Instruction(RegisterController &registerController,
@@ -72,6 +72,7 @@ public:
   void CPY(uint16_t memoryAddress);
   void BIT(uint16_t memoryAddress);
   void JSR(uint16_t memoryAddress);
+  void BRK();
   void RTS();
 };
 

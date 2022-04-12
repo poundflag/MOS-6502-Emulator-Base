@@ -5,7 +5,7 @@
 
 class Register {
 protected:
-  uint8_t value;
+  uint8_t value = 0;
 
 public:
   Register();

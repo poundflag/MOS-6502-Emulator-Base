@@ -30,6 +30,12 @@ void BusController::addRamChip(uint16_t startAddress, uint16_t endAddress) {
   addDevice(ram);
 }
 
+void BusController::addRamChip(std::string filepath) {
+  RamDebug *ram = new RamDebug(filepath);
+  ram->addAddress({0, 0xFFFF});
+  addDevice(ram);
+}
+
 AddressRange BusController::getAddressRange(uint16_t address,
                                             BusDevice *currentDevice) {
   if (currentDevice != NULL) {

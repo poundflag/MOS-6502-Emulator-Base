@@ -1,33 +1,20 @@
-#include <iostream>
 #include "cpu.h"
+#include <iostream>
 
 int main() {
-    std::cout << "Hello";
-    CPU cpu = CPU();
-    cpu.getBusController().addRamChip(0x0, 0xFF);
-    cpu.getBusController().addRamChip(0xF000, 0xFFFF);
+  std::cout << "Hello";
+  CPU cpu = CPU();
 
-    cpu.getBusController().write(0xFFFC, 0x00);
-    cpu.getBusController().write(0xFFFD, 0x00);
+  cpu.getBusController().addRamChip(
+      "/Users/robin/Documents/GitHub/MOS-6502-Emulator-Base/rom/"
+      "6502_functional_test.bin");
 
-    /*cpu.getBusController().write(0, 0xA9); // LDA
-    cpu.getBusController().write(1, 0x13);
-    cpu.getBusController().write(2, 0x69); // ADC
-    cpu.getBusController().write(3, 0x12);*/
+  cpu.step(1);
 
-    cpu.getBusController().write(0, 0xA2);
-    cpu.getBusController().write(1, 0x11);
-    cpu.getBusController().write(2, 0xE8);
-    cpu.getBusController().write(3, 0x8A);
-    cpu.getBusController().write(4, 0xC9);
-    cpu.getBusController().write(5, 0x15);
-    cpu.getBusController().write(6, 0xF0);
-    cpu.getBusController().write(7, 0x03);
-    cpu.getBusController().write(8, 0x20);
-    cpu.getBusController().write(9, 0x02);
-    cpu.getBusController().write(10, 0x00);
-    cpu.getBusController().write(11, 0x00);
+  cpu.getRegisterController().setProgramCounter(0x400);
 
-
-    cpu.step(25);
+  cpu.step(40916);
+  if (cpu.getRegisterController().getStatusRegister()->getStatus(BreakSignal)) {
+    std::cout << "Success";
+  }
 }

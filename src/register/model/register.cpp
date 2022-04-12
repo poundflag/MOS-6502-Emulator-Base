@@ -1,6 +1,6 @@
 #include "register.h"
 
-Register::Register() { value = 0; }
+Register::Register() {}
 
 void Register::setValue(uint8_t value) { this->value = value; }
 

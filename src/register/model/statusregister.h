@@ -19,6 +19,7 @@ class StatusRegister : public Register {
 public:
   StatusRegister();
   void setValue(uint8_t value1, uint8_t value2);
+  uint8_t getValue();
   void overrideValue(uint8_t value);
   void setCarry(uint16_t value);
   void setZero(uint8_t value);

@@ -1,6 +1,7 @@
 #include "statusregister.h"
+#include <iostream>
 
-StatusRegister::StatusRegister() { this->value = 0b00000100; }
+StatusRegister::StatusRegister() { }
 
 void StatusRegister::setValue(uint8_t value1, uint8_t value2) {
   uint16_t result = value1 + value2;
@@ -10,22 +11,26 @@ void StatusRegister::setValue(uint8_t value1, uint8_t value2) {
   setOverflow(value1, value2);
 }
 
+uint8_t StatusRegister::getValue() { return this->value | 0b00110000; }
+
 void StatusRegister::overrideValue(uint8_t value) { this->value = value; }
 
 void StatusRegister::setCarry(uint16_t value) {
   setStatus(Carry, ((value >> 8) & 1) == 1);
 }
 
-void StatusRegister::setZero(uint8_t value) { setStatus(Zero, value == 0); }
+void StatusRegister::setZero(uint8_t value) {
+  // std::setvbuf(stdout, NULL, _IONBF, 0);
+  // std::cout << value;
+  setStatus(Zero, value == 0);
+}
 
 void StatusRegister::setOverflow(uint8_t value1, uint8_t value2) {
-  // Dont't know why it wants the carry flipped :/
-  uint16_t result = (value1 + value2 + (getStatus(Carry) ? 0 : 1));
-  // Check if the result of two complements is overflowed
-  // -> If an xor of two values results in a 0 (in the last bit) it is overflowed
-  // However also the opposite needs to be checked if it hasn't overflowed
-  bool re = !((value1 ^ value2) & 0x80) && ((value1 ^ result) & 0x80);
-  // std::cout << std::hex << re << std::endl;
+  uint8_t m = value2;
+	unsigned int tmp = m + value1 + (getStatus(Carry) ? 1 : 0);
+	
+		bool re = (!((value1 ^ m) & 0x80) && ((value1 ^ tmp) & 0x80));
+
   setStatus(Overflow, re);
 }
 

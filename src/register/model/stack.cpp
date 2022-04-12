@@ -1,15 +1,17 @@
 #include "stack.h"
 
-Stack::Stack(BusController &busController) : busController{busController} {}
+Stack::Stack(BusController &busController) : busController{busController} {
+  value = 0xFF;
+}
 
 void Stack::push(uint8_t data) {
-  busController.write(value, data);
-  value++;
+  busController.write(STACK_POINTER_PREFIX + value, data);
+  value--;
 }
 
 uint8_t Stack::pull() {
-  value--;
-  return busController.read(value);
+  value++;
+  return busController.read(STACK_POINTER_PREFIX + value);
 }
 
 void Stack::pushWord(uint16_t data) {
