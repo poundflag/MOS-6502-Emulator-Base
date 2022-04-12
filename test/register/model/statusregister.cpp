@@ -54,6 +54,7 @@ TEST_F(StatusRegisterTest, setOverflowFlag2) {
 
 TEST_F(StatusRegisterTest, setOverflowFlag3) {
   statusRegister.setValue(0x80, 0xFF);
+  GTEST_ASSERT_EQ(statusRegister.getStatus(Carry), 1);
   GTEST_ASSERT_EQ(statusRegister.getStatus(Overflow), 1);
 }
 

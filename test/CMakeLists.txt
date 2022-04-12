@@ -15,6 +15,7 @@ target_link_libraries(test
     PUBLIC instructionTest
     PUBLIC instruction
     PUBLIC alu
+    PUBLIC cpu
 )
 
 include(GoogleTest)

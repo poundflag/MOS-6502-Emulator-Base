@@ -324,15 +324,13 @@ TEST_F(InstructionTest, ANDNegativeFlagAffected) {
 
 TEST_F(InstructionTest, EORWithNotFlagChanged) {
   registerController.setRegisterValue(A, 0x3);
-  busController.write(1, 0x5);
-  instr.EOR(1);
+  instr.EOR(5);
   GTEST_ASSERT_EQ(0x6, registerController.getRegisterValue(A));
 }
 
 TEST_F(InstructionTest, EORZeroFlagAffected) {
   registerController.setRegisterValue(A, 0x0);
-  busController.write(1, 0x0);
-  instr.EOR(1);
+  instr.EOR(0);
   GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(A));
   GTEST_ASSERT_EQ(true,
                   registerController.getStatusRegister()->getStatus(Zero));
@@ -340,8 +338,7 @@ TEST_F(InstructionTest, EORZeroFlagAffected) {
 
 TEST_F(InstructionTest, EORNegativeFlagAffected) {
   registerController.setRegisterValue(A, 0xF2);
-  busController.write(1, 0x2);
-  instr.EOR(1);
+  instr.EOR(2);
   GTEST_ASSERT_EQ(0xF0, registerController.getRegisterValue(A));
   GTEST_ASSERT_EQ(true,
                   registerController.getStatusRegister()->getStatus(Negative));
@@ -476,50 +473,29 @@ TEST_F(InstructionTest, TSXWithNotFlagChanged) {
   registerController.getStack()->push(0x10);
   registerController.setRegisterValue(X, 0x5);
   instr.TSX();
-  GTEST_ASSERT_EQ(0x10, registerController.getRegisterValue(X));
-}
-
-TEST_F(InstructionTest, TSXZeroFlagAffected) {
-  registerController.getStack()->push(0x0);
-  registerController.setRegisterValue(X, 0x5);
-  instr.TSX();
-  GTEST_ASSERT_EQ(0x0, registerController.getRegisterValue(X));
-  GTEST_ASSERT_EQ(true,
-                  registerController.getStatusRegister()->getStatus(Zero));
-}
-
-TEST_F(InstructionTest, TSXNegativeFlagAffected) {
-  registerController.getStack()->push(0xF3);
-  registerController.setRegisterValue(X, 0x5);
-  instr.TSX();
-  GTEST_ASSERT_EQ(0xF3, registerController.getRegisterValue(X));
-  GTEST_ASSERT_EQ(true,
-                  registerController.getStatusRegister()->getStatus(Negative));
+  GTEST_ASSERT_EQ(0xFE, registerController.getRegisterValue(X));
 }
 
 TEST_F(InstructionTest, TXSWithNotFlagChanged) {
   registerController.getStack()->push(0x10);
   registerController.setRegisterValue(X, 0x5);
   instr.TXS();
-  GTEST_ASSERT_EQ(0x5, registerController.getStack()->pull());
+  GTEST_ASSERT_EQ(0x0, registerController.getStack()->pull());
 }
 
 TEST_F(InstructionTest, TXSZeroFlagAffected) {
   registerController.getStack()->push(0x5);
+  registerController.getStack()->push(0x5);
   registerController.setRegisterValue(X, 0x0);
   instr.TXS();
   GTEST_ASSERT_EQ(0x0, registerController.getStack()->pull());
-  GTEST_ASSERT_EQ(true,
-                  registerController.getStatusRegister()->getStatus(Zero));
 }
 
 TEST_F(InstructionTest, TXSNegativeFlagAffected) {
   registerController.getStack()->push(0x5);
   registerController.setRegisterValue(X, 0xF3);
   instr.TXS();
-  GTEST_ASSERT_EQ(0xF3, registerController.getStack()->pull());
-  GTEST_ASSERT_EQ(true,
-                  registerController.getStatusRegister()->getStatus(Negative));
+  GTEST_ASSERT_EQ(0xF3, registerController.getStack()->getValue());
 }
 
 TEST_F(InstructionTest, PHA) {
@@ -531,7 +507,7 @@ TEST_F(InstructionTest, PHA) {
 TEST_F(InstructionTest, PHP) {
   registerController.getStatusRegister()->Register::setValue(0x20);
   instr.PHP();
-  GTEST_ASSERT_EQ(0x20, registerController.getStack()->pull());
+  GTEST_ASSERT_EQ(0x30, registerController.getStack()->pull());
 }
 
 TEST_F(InstructionTest, PLA) {
@@ -745,7 +721,7 @@ TEST_F(InstructionTest, SBCWithSimpleCarryFlagAndOverflow2) {
   registerController.setRegisterValue(A, 0x50);
   instr.SBC(0xB0);
   GTEST_ASSERT_EQ(0xA0, registerController.getRegisterValue(A));
-  GTEST_ASSERT_EQ(true,
+  GTEST_ASSERT_EQ(false,
                   registerController.getStatusRegister()->getStatus(Carry));
   GTEST_ASSERT_EQ(true,
                   registerController.getStatusRegister()->getStatus(Overflow));
@@ -754,7 +730,7 @@ TEST_F(InstructionTest, SBCWithSimpleCarryFlagAndOverflow2) {
 TEST_F(InstructionTest, JMP) {
   registerController.setProgramCounter(0x1234);
   instr.JMP(0x4321);
-  GTEST_ASSERT_EQ(0x4321, registerController.getProgramCounter());
+  GTEST_ASSERT_EQ(0x4320, registerController.getProgramCounter());
 }
 
 // TODO Add branching tests!!!

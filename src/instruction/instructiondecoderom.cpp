@@ -9,9 +9,6 @@ InstructionDecodeRom::InstructionDecodeRom(
 }
 
 bool InstructionDecodeRom::decodeOpcode(uint8_t opcode) {
-  if (registerController.getProgramCounter() == 0x09CE) {
-    std::cout << "FINISH";
-  }
   switch (opcode) { // TODO Does TSX Change flags???
   case 0x00:
     instruction.BRK();
@@ -524,6 +521,7 @@ bool InstructionDecodeRom::decodeOpcode(uint8_t opcode) {
                    .to_string()
             << std::endl;*/
 
+  // return registerController.getStatusRegister()->getStatus(BreakSignal);
   return false;
 }
 

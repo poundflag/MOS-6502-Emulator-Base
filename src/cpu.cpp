@@ -24,8 +24,6 @@ void CPU::step(int steps) {
     lBreak = instructionDecodeRom->decodeOpcode(fetch());
     registerController.incrementProgramCounter();
   }
-
-  std::cout << i << std::endl;
 }
 
 void CPU::run() {}

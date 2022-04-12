@@ -1,14 +1,14 @@
 #include "statusregister.h"
 #include <iostream>
 
-StatusRegister::StatusRegister() { }
+StatusRegister::StatusRegister() {}
 
 void StatusRegister::setValue(uint8_t value1, uint8_t value2) {
   uint16_t result = value1 + value2;
   setZero(result);
   setNegative(result);
-  setCarry(result);
   setOverflow(value1, value2);
+  setCarry(result);
 }
 
 uint8_t StatusRegister::getValue() { return this->value | 0b00110000; }
@@ -27,9 +27,9 @@ void StatusRegister::setZero(uint8_t value) {
 
 void StatusRegister::setOverflow(uint8_t value1, uint8_t value2) {
   uint8_t m = value2;
-	unsigned int tmp = m + value1 + (getStatus(Carry) ? 1 : 0);
-	
-		bool re = (!((value1 ^ m) & 0x80) && ((value1 ^ tmp) & 0x80));
+  uint8_t tmp = m + value1 + (getStatus(Carry) ? 1 : 0);
+
+  bool re = (!((value1 ^ m) & 0x80) && ((value1 ^ tmp) & 0x80));
 
   setStatus(Overflow, re);
 }

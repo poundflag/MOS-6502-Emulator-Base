@@ -14,7 +14,7 @@ int main() {
   cpu.getRegisterController().setProgramCounter(0x400);
 
   cpu.step(40916);
-  if (cpu.getRegisterController().getStatusRegister()->getStatus(BreakSignal)) {
+  if (cpu.getRegisterController().getStatusRegister()->getStatus(BreakSignal) && cpu.getRegisterController().getProgramCounter() == 0x09D0) {
     std::cout << "Success";
   }
 }

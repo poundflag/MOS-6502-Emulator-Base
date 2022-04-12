@@ -4,6 +4,7 @@
 #include "register/registercontroller.cpp"
 #include "instruction/instruction.cpp"
 #include "instruction/addressmodeconversion.cpp"
+#include "integrationtest.cpp"
 /*
 TEST(myfunctions, add)
 {

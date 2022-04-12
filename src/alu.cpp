@@ -21,7 +21,7 @@ uint8_t ALU::subOperation(uint8_t inputA, uint8_t inputB) {
   uint8_t m = inputB;
 	unsigned int tmp = A - m - (registerController.getStatusRegister()->getStatus(Carry) ? 0 : 1);
 	registerController.getStatusRegister()->setStatus(Overflow, !(((A ^ tmp) & 0x80) && ((A ^ m) & 0x80)));
-  return result;
+  return result -1;
 }
 
 uint8_t ALU::shiftLeftOperation(uint8_t inputA) {
